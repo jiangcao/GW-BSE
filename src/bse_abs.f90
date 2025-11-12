@@ -1,3 +1,8 @@
+! Copyright (c) 2025 Jiang Cao, ETH Zurich 
+! All rights reserved.
+!
+! This source code is licensed under the GNU General Public License v3.0
+
 PROGRAM BSE_ABS
 USE bse_mod
 USE wannierHam, only : NB, w90_load_from_file, w90_PLOT_BZ, w90_PLOT_X, w90_free_memory,Ly,w90_mat_def_2d_kv,eigv,b1,b2,norm,wannier_center,alpha,beta,totnvb=>nvb,cross,spin_deg
@@ -8,10 +13,10 @@ complex(8), allocatable ::kernel(:,:),Hiimat(:,:,:,:),ak(:,:,:,:),Hii(:,:)
 real(8), allocatable :: kv(:,:,:),ek(:,:,:),D(:),rij(:,:,:),rijvvd(:,:,:,:,:),wrijvvd(:,:,:,:),vrijvvd(:,:,:,:),q(:,:,:),ediff(:,:,:,:),omega(:),efieldpot(:,:,:,:),hbarw(:),absp(:),grid(:,:)
 complex(8), allocatable::wsum(:,:,:,:),vsum(:,:),Knew(:,:),asvckmat (:,:,:,:,:),sumas(:),chixyz(:),chi(:,:,:,:)
 real(8), parameter :: pi=3.14159265359d0
-real(8), parameter :: e=1.6d-19            ! charge of an electron (C)
-real(8), parameter :: epsilon0=8.85e-12    ! Permittivity of free space (m^-3 kg^-1 s^4 A^2)
-real(8), parameter :: c=3.0d8;             ! speed of light (m/s)
-real(8), parameter :: hbar=1.0546d-34      ! value of hbar=h/2pi (J s)
+real(8), parameter :: e=1.60217663d-19            ! charge of an electron (C)
+real(8), parameter :: epsilon0=8.8541878d-12      ! Permittivity of free space (m^-3 kg^-1 s^4 A^2)
+real(8), parameter :: c=299792458.0d0             ! speed of light (m/s)
+real(8), parameter :: hbar=1.05457182d-34         ! value of hbar=h/2pi (J s)
 real(8), dimension(3) :: R, minRv, rvvd, xhat, qv,dk
 integer :: NKX,NKY,N,newsize,num_cut,ncpu,npt,nx,ny,nz
 integer :: ivb,icb,ikx,iky,jvb,jcb,jkx,jky,iqx,iqy,s,nex
@@ -20,7 +25,7 @@ complex(8)::Kernel_d,Kernel_x,tmp1
 logical:: lwcenter,lbse,lplotexciton
 character(8)  :: date
 character(10) :: time
-real(8) :: t_start, t_end, t_section_start
+real :: t_start, t_end, t_section_start
 
 ! Print header and start time
 print '(/,80("="))'
@@ -340,7 +345,7 @@ end if
 
 ! Check Hermiticity
 print '(/,a)', '    Checking matrix Hermiticity...'
-if (any(abs(Knew - conjg(transpose(Knew))) .gt. 1e-7)) then
+if (any(abs(Knew - conjg(transpose(Knew))) .gt. 1e-10)) then
     print '(a)', '    ERROR: Kernel not Hermitian!'
     print '(a,e12.4)', '    Maximum deviation: ', maxval(abs(Knew - conjg(transpose(Knew))))
     stop
@@ -395,7 +400,7 @@ do s=1,1
         do icb=1,ncb
             do ikx=1,nkx
                 do iky=1,nky
-                    write(11,'(2F15.4)') dble(asvckmat(ivb,icb,ikx,iky,s)),aimag(asvckmat(ivb,icb,ikx,iky,s))
+                    write(11,'(2E15.6)') dble(asvckmat(ivb,icb,ikx,iky,s)),aimag(asvckmat(ivb,icb,ikx,iky,s))
                 enddo
             enddo
         enddo
@@ -441,12 +446,12 @@ end do
 
 open(unit=11,file='absp.dat',status='unknown')
 do i = 1,size(hbarw)   
-    write(11,'(2F15.4)') hbarw(i), absp(i)    
+    write(11,'(2E15.6)') hbarw(i), absp(i)    
 end do    
 close(11)
 open(unit=11,file='sumas.dat',status='unknown')
 do s=1,newsize
-    write(11,'(2F15.4)') omega(s) ,   dble(sumas(s))
+    write(11,'(2E15.6)') omega(s) ,   dble(sumas(s))
 end do    
 close(11)
 call cpu_time(t_end)

@@ -1,27 +1,7 @@
-! Copyright (c) 2023 Jiang Cao, ETH Zurich 
+! Copyright (c) 2025 Jiang Cao, ETH Zurich 
 ! All rights reserved.
 !
-! Redistribution and use in source and binary forms, with or without
-! modification, are permitted provided that the following conditions are met:
-!
-! 1. Redistributions of source code must retain the above copyright notice,
-!    this list of conditions and the following disclaimer.
-! 2. Redistributions in binary form must reproduce the above copyright notice,
-!    this list of conditions and the following disclaimer in the documentation
-!    and/or other materials provided with the distribution.
-!
-! THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS "AS IS"
-! AND ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT LIMITED TO, THE
-! IMPLIED WARRANTIES OF MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE
-! ARE DISCLAIMED. IN NO EVENT SHALL THE COPYRIGHT HOLDER OR CONTRIBUTORS BE
-! LIABLE FOR ANY DIRECT, INDIRECT, INCIDENTAL, SPECIAL, EXEMPLARY, OR
-! CONSEQUENTIAL DAMAGES (INCLUDING, BUT NOT LIMITED TO, PROCUREMENT OF
-! SUBSTITUTE GOODS OR SERVICES; LOSS OF USE, DATA, OR PROFITS; OR BUSINESS
-! INTERRUPTION) HOWEVER CAUSED AND ON ANY THEORY OF LIABILITY, WHETHER IN
-! CONTRACT, STRICT LIABILITY, OR TORT (INCLUDING NEGLIGENCE OR OTHERWISE)
-! ARISING IN ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE
-! POSSIBILITY OF SUCH DAMAGE. 
-!
+! This source code is licensed under the GNU General Public License v3.0
 
 MODULE wannierHam
 
@@ -43,9 +23,9 @@ INTEGER :: ymin,ymax,xmin,xmax,nb,nx,ny,nvb, spin_deg
 COMPLEX(8), PARAMETER :: zzero = dcmplx(0.0d0,0.0d0)
 COMPLEX(8), PARAMETER :: z1j = dcmplx(0.0d0,1.0d0)
 REAL(8), PARAMETER :: pi = 3.14159265359d0
-REAL(8), PARAMETER :: m0=5.6856D-16 ! eV s2 / cm2
+REAL(8), PARAMETER :: m0=5.6856D-16       ! eV s2 / cm2
 REAL(8), PARAMETER :: hbar=6.58211899D-16 ! eV s
-REAL(8), PARAMETER :: c0=2.998d8 ! m/s
+REAL(8), PARAMETER :: c0=299792458.0d0    ! m/s
 
 public :: w90_free_memory, w90_load_from_file, w90_MAT_DEF, w90_MAT_DEF_2D,w90_MAT_DEF_2D_kv, w90_plot_bz,w90_MAT_DEF_ribbon_simple
 public :: w90_plot_x, NB, Lx, Ly,Lz, Nvb, VBM, CBM, kt_CBM, kt_VBM, Eg, spin_deg
@@ -71,8 +51,8 @@ integer, intent(in) :: fid
 logical, intent(in), optional :: lreorder_axis
 integer, intent(in), optional :: axis(3)
 integer :: n,i,nkx,nky
-character(len=40) :: line, comment
-REAL(8) :: dky,aux1(3),aux2(3,3)
+character(len=40) :: comment
+REAL(8) :: dky,aux2(3,3)
 integer, allocatable :: ind(:)
 REAL(8), allocatable :: ham(:,:), energ(:,:), aux3(:,:)
     read(fid,*) nvb, spin_deg ! number of VBs, spin-degeneracy
@@ -103,11 +83,11 @@ REAL(8), allocatable :: ham(:,:), energ(:,:), aux3(:,:)
         ham = aux3        
         deallocate(aux3)
     end if
-    xmin=minval(ham(:,1))
-    xmax=maxval(ham(:,1))
-    ymin=minval(ham(:,2))
-    ymax=maxval(ham(:,2))
-    nb = maxval(ham(:,4))
+    xmin=minval(int(ham(:,1)))
+    xmax=maxval(int(ham(:,1)))
+    ymin=minval(int(ham(:,2)))
+    ymax=maxval(int(ham(:,2)))
+    nb = maxval(int(ham(:,4)))
     nx = xmax-xmin+1
     ny = ymax-ymin+1
     xhat = alpha/norm(alpha)
@@ -248,7 +228,7 @@ implicit none
 integer, intent(in) :: nk,ns    
 real(8), dimension(nb*ns,nk), intent(out) :: EN
 complex(8), dimension(NB*ns,NB*ns) :: Hii,H1i,Ht
-real(8) :: dkx, dky, kx, ky
+real(8) :: dkx, kx, ky
 integer :: i
     dkx = 2.d0 * pi / dble(nk-1) /Lx/Ns
     do i = 1,nk
@@ -307,7 +287,6 @@ integer, intent(in) :: ns
 COMPLEX(8), INTENT(OUT), DIMENSION(NB*ns,NB*ns) :: Hii, H1i
 real(8), intent(in) :: ky,kx
 integer :: i,j,k
-real(8) :: phiy, phix
 real(8), dimension(3) :: kv, r
 Hii(:,:) = zzero
 H1i(:,:) = zzero
@@ -649,7 +628,7 @@ character(len=*), intent(in) :: dot_shape
 complex(8), intent(out), allocatable:: Ham(:,:)
 integer, intent(out), allocatable, optional :: cell_index(:,:)
 integer, allocatable :: include_index(:,:)
-integer :: i,j,k,nm,ix,iy,jx,jy,nn
+integer :: i,j,nm,ix,iy,jx,jy
 real(8) :: rr,ri(3)
 select case (dot_shape)
     case ('circle')
@@ -922,7 +901,7 @@ INTEGER, INTENT(IN) :: NN
 COMPLEX(8), INTENT(INOUT), DIMENSION(:,:) :: A
 REAL(8) :: eig(NN)
 real(8) :: W(1:NN)
-integer :: INFO,LWORK,liwork, lrwork
+integer :: INFO,LWORK, lrwork
 complex(8), allocatable :: work(:)
 real(8), allocatable :: RWORK(:)
 !integer, allocatable :: iwork(:) 
@@ -947,7 +926,7 @@ INTEGER, INTENT(IN) :: NN
 COMPLEX(8), INTENT(INOUT), DIMENSION(:,:) :: A
 REAL(8) :: eigv(NN)
 real(8) :: W(1:NN)
-integer :: INFO,LWORK,liwork, lrwork
+integer :: INFO,LWORK, lrwork
 complex(8), allocatable :: work(:)
 real(8), allocatable :: RWORK(:)
 !integer, allocatable :: iwork(:) 
@@ -968,7 +947,7 @@ END FUNCTION eigv
 
 subroutine invert(A,nn)
   implicit none      
-  integer :: info,lda,lwork,nn      
+  integer :: info,nn      
   integer, dimension(:), allocatable :: ipiv
   complex(8), dimension(nn,nn),intent(inout) :: A
   complex(8), dimension(:), allocatable :: work
@@ -985,7 +964,7 @@ implicit none
 integer::i
 real(8)::reV(NB)
 real(8),parameter::ry2ev=13.6d0
-real(8)::tmp(NB,NB)
+complex(8)::tmp(NB,NB)
 allocate(Vmn(NB,NB,nx,ny))
 Vmn=dcmplx(0.0d0,0.0d0)
 

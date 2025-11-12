@@ -36,6 +36,9 @@
 *.exe
 *.out
 *.app
+*.x
 
 # debug information files
 *.dwo
+
+*.i90

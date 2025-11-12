@@ -1,0 +1,11 @@
+16  16               ! nkx, nky
+4  1                    ! ncb,    nvb
+100e-4                     ! F
+1.0   10.0   6.5        ! epsilon,  k0,  xi [A]
+5                     ! cutoff energy in eV
+30e-3                   ! 30 meV smearing parameter
+.false.                       ! use wannier center 
+.true.                      ! do BSE (.false. only IP)
+4                        ! number of CPU available
+1.0 0.0 0.0
+.false.
